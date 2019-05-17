@@ -18,12 +18,21 @@ class User
     private $user_info;
 
     /**
+     * @var string The password hash of the user.
+     */
+    private $password_hash;
+
+    /**
      * The constructor.
      *
      * @param array $user_info The user info.
      */
     public function __construct($user_info)
     {
+        // Save the password hash value.
+        $this->password_hash = $user_info['password'];
+
+        // Save the user info without password.
         $this->user_info = array(
             'id' => $user_info['id'],
             'type' => $user_info['type'],
@@ -53,5 +62,17 @@ class User
     public function getUserId()
     {
         return $this->user_info['id'];
+    }
+
+    /**
+     * For some operactions we want the user to confirm their password. This function is used to chececk whether the
+     * password is correct.
+     *
+     * @param string $password The unhashed user password.
+     * @return bool Returns true if the password is confirmed, otherwise false is returned.
+     */
+    public function confirmPassword($password)
+    {
+        return UserManager::getInstance()->checkPassword($password, $this->password_hash);
     }
 }
