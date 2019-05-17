@@ -52,8 +52,8 @@ class UserManager
         $user_info = null;
 
         foreach ($user_list as $stored_user) {
-            if (is_null($stored_user['deleted_at'])) {
-                if ($stored_user[$key] === $value) {
+            if ($stored_user[$key] === $value) {
+                if (is_null($stored_user['deleted_at'])) {
                     $user_info = $stored_user;
                     break;
                 }
@@ -167,14 +167,15 @@ class UserManager
         if ($user_is_not_existed) {
             $user_info = array();
             $user_id = $user_store->get('next_user_id', 1);
+            $current_date = date('Y-m-d H:i:s');
 
             $user_info['id'] = $user_id;
             $user_info['type'] = $type;
             $user_info['group'] = array();
             $user_info['username'] = $username;
             $user_info['password'] = $this->hashPassword($password);
-            $user_info['created_at'] = date('Y-m-d H:i:s');
-            $user_info['updated_at'] = date('Y-m-d H:i:s');
+            $user_info['created_at'] = $current_date;
+            $user_info['updated_at'] = $current_date;
             $user_info['deleted_at'] = null;
 
             array_push($user_list, $user_info);
