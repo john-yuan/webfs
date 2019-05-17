@@ -39,6 +39,53 @@ class UserManager
     }
 
     /**
+     * Find the user by the specific key (username or id).
+     *
+     * @param string $key The key to search (username or id).
+     * @param string|number $value The value to search.
+     * @return User|null Returns an instance of User on user found, otherwise null is returned.
+     */
+    private function findUserBySpecificKey($key, $value)
+    {
+        $user_store = $this->getUserStore();
+        $user_list = $user_store->get('user_list', array());
+        $user_info = null;
+
+        foreach ($user_list as $stored_user) {
+            if (is_null($stored_user['deleted_at'])) {
+                if ($stored_user[$key] === $value) {
+                    $user_info = $stored_user;
+                    break;
+                }
+            }
+        }
+
+        return is_null($user_info) ? null : new User($user_info);
+    }
+
+    /**
+     * Find the user by username.
+     *
+     * @param string $username The username of the user.
+     * @return User|null Returns an instance of User on user found, otherwise null is returned.
+     */
+    public function findUserByName($username)
+    {
+        return $this->findUserBySpecificKey('username', $username);
+    }
+
+    /**
+     * Find the user by user id.
+     *
+     * @param string $user_id The user id of the user.
+     * @return User|null Returns an instance of User on user found, otherwise null is returned.
+     */
+    public function findUserById($user_id)
+    {
+        return $this->findUserBySpecificKey('id', $user_id);
+    }
+
+    /**
      * Get the hash of the given password.
      *
      * @param string $password The password to be hashed
