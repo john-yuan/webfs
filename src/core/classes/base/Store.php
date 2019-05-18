@@ -191,6 +191,7 @@ class Store
             $filename = config('default_storage_dir') . '/' . $store_name . '.store.php';
         }
 
+        $filename = FileReader::normalizePath($filename);
         $diranme = dirname($filename);
 
         if (!is_dir($diranme)) {
