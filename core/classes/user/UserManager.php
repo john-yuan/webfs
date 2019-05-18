@@ -149,8 +149,8 @@ class UserManager
         }
 
         if (!$this->checkPasswordLength($password)) {
-            throw new Exception("The length of the password must be less than equal to " .
-                slef::MAX_PASSWORD_LENGTH . ".", 2);
+            throw new Exception('The length of the password must be less than equal to ' .
+                self::MAX_PASSWORD_LENGTH . '.', 2);
         }
 
         $user_store = $this->getUserStore();
@@ -267,6 +267,43 @@ class UserManager
             $user_list[$user_index]['updated_at'] = date('Y-m-d H:i:s');
             $user_store->set('user_list', $user_list);
             $updated = true;
+        }
+
+        $user_store->unlock();
+
+        return $updated;
+    }
+
+    /**
+     * Update the user password by user id.
+     *
+     * @param int $user_id The user id.
+     * @param string $new_password The unhashed new password.
+     * @throws Exception Throws exception on arguments error.
+     * @return bool
+     */
+    public function updateUserPassword($user_id, $new_password)
+    {
+        if (!$this->checkPasswordLength($new_password)) {
+            throw new Exception('The length of the password must be less than equal to ' .
+                self::MAX_PASSWORD_LENGTH . '.', 1);
+        }
+
+        $user_store = $this->getUserStore();
+        $user_list = $user_store->lock()->get('user_list', array());
+        $updated = false;
+
+        foreach ($user_list as $index => $stored_user) {
+            if ($stored_user['id'] === $user_id) {
+                if (is_null($stored_user['deleted_at'])) {
+                    $user_list[$index]['password'] = $this->hashPassword($new_password);
+                    $user_list[$index]['updated_at'] = date('Y-m-d H:i:s');
+                    $user_store->set('user_list', $user_list);
+                    $updated = true;
+                } else {
+                    break;
+                }
+            }
         }
 
         $user_store->unlock();
