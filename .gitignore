@@ -1,4 +1,4 @@
 .DS_Store
 dist
-src/storage/**/*
-!src/storage/README.md
+storage/**/*
+!storage/README.md
