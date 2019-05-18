@@ -70,6 +70,7 @@ class Store
      *
      * @param string $name
      * @param mixed $value
+     * @return Store Returns the current instance of Store.
      */
     public function set($name, $value)
     {
@@ -86,12 +87,15 @@ class Store
             $reader->write($content);
             $reader->free();
         }
+
+        return $this;
     }
 
     /**
      * Remove data by name.
      *
      * @param string $name
+     * @return Store Returns the current instance of Store.
      */
     public function remove($name)
     {
@@ -108,31 +112,37 @@ class Store
             $reader->write($content);
             $reader->free();
         }
+
+        return $this;
     }
 
     /**
      * Lock the store
+     *
+     * @return Store Returns the current instance of Store.
      */
     public function lock()
     {
-        if ($this->locked) {
-            return;
+        if (!$this->locked) {
+            $this->lockCheck();
+
+            $this->locked = true;
+            self::$locked_store_array[$this->filename] = true;
+
+            $this->reader = new FileReader($this->filename);
+            $this->reader->wlock();
+
+            $content = $this->reader->read();
+            $this->store_cached = self::decode($content);
         }
 
-        $this->lockCheck();
-
-        $this->locked = true;
-        self::$locked_store_array[$this->filename] = true;
-
-        $this->reader = new FileReader($this->filename);
-        $this->reader->wlock();
-
-        $content = $this->reader->read();
-        $this->store_cached = self::decode($content);
+        return $this;
     }
 
     /**
      * Unlock the store.
+     *
+     * @return Store Returns the current instance of Store.
      */
     public function unlock()
     {
@@ -148,6 +158,8 @@ class Store
 
             unset(self::$locked_store_array[$this->filename]);
         }
+
+        return $this;
     }
 
     /**
