@@ -9,9 +9,9 @@ please avoid using the files or directories listed as follow:
 * error - The directory to hold error logs.
 * log - The directory to hold runtime logs.
 * user - The directory to hold the information of the users in the system.
-* initialized.php - The file to indicate whether the application is initialized. If this file exists, means that the
-application is initialized, otherwise the application is not initialized and the installation program will be executed
-on the first time the user visit the application in the browser.
+* installed.php - The file to indicate whether the application is installed. If this file exists, means that the
+application is installed, otherwise the application is not installed and the installation program will be executed on
+the first time the user visit the application in the browser.
 
 ## Deploy notes
 
