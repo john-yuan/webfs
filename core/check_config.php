@@ -1,27 +1,19 @@
 <?php
 
 if (is_null(config('default_storage_dir'))) {
-    echo '<h1>Config Error</h1>';
-    echo '<p>The value of <b>default_storage_dir</b> is not set.<p>';
-    echo '<p>For more details, please read the config file ' . __DIR__ . DIRECTORY_SEPARATOR . 'config.php</p>';
-    exit;
+    http()->error('ERR_BAD_CONFIG', 'The value of default_storage_dir is not set. ' .
+        'For more details, please read the config file core/config.php');
 } else if (!file_exists(config('default_storage_dir'))) {
     if (false === mkdir(config('default_storage_dir'), 0755, true)) {
-        echo '<h1>Config Error</h1>';
-        echo '<p>Failed to create the storage directory: ' . config('default_storage_dir') . '</p>';
-        echo '<p>For more details, please read the config file ' . __DIR__ . DIRECTORY_SEPARATOR . 'config.php</p>';
-        exit;
+        http()->error('ERR_BAD_CONFIG', 'Failed to create the storage directory: ' .
+            config('default_storage_dir') . '. For more details, please read the config file core/config.php');
     }
 } else if (!is_dir(config('default_storage_dir'))) {
-    echo '<h1>Config Error</h1>';
-    echo '<p>' . config('default_storage_dir') .' is not a directory. It can not be using as <b>default_storage_dir</b>.</p>';
-    echo '<p>For more details, please read the config file ' . __DIR__ . DIRECTORY_SEPARATOR . 'config.php</p>';
-    exit;
+    http()->error('ERR_BAD_CONFIG', config('default_storage_dir') . ' is not a directory. It can not be used as ' .
+        'the default_storage_dir. For more details, please read the config file core/config.php');
 }
 
 if (is_null(config('installation_auth_code'))) {
-    echo '<h1>Config Error</h1>';
-    echo '<p>The value of <b>installation_auth_code</b> is not set.<p>';
-    echo '<p>For more details, please read the config file ' . __DIR__ . DIRECTORY_SEPARATOR . 'config.php</p>';
-    exit;
+    http()->error('ERR_BAD_CONFIG', 'The value of installation_auth_code is not set. ' .
+        'For more details, please read the config file core/config.php');
 }
