@@ -18,3 +18,10 @@ if (is_null(config('default_storage_dir'))) {
     echo '<p>For more details, please read the config file ' . __DIR__ . DIRECTORY_SEPARATOR . 'config.php</p>';
     exit;
 }
+
+if (is_null(config('installation_auth_code'))) {
+    echo '<h1>Config Error</h1>';
+    echo '<p>The value of <b>installation_auth_code</b> is not set.<p>';
+    echo '<p>For more details, please read the config file ' . __DIR__ . DIRECTORY_SEPARATOR . 'config.php</p>';
+    exit;
+}
