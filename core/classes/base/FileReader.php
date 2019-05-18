@@ -268,7 +268,7 @@ class FileReader
     }
 
     /**
-     * Create the file if it is not existsed.
+     * Create the file if it does not exist.
      */
     private function create()
     {
