@@ -312,7 +312,7 @@ class UserManager
     }
 
     /**
-     * Check whether the password of the user is correct
+     * Check whether the password of the user is correct.
      *
      * @param string $username The username.
      * @param string $password The unhashed password.
