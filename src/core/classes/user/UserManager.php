@@ -226,6 +226,49 @@ class UserManager
     }
 
     /**
+     * Update the user name by user id.
+     *
+     * @param int $user_id The user id.
+     * @param string $new_username The new username.
+     * @return bool
+     */
+    public function updateUserName($user_id, $new_username)
+    {
+        $user_store = $this->getUserStore();
+        $user_list = $user_store->lock()->get('user_list', array());
+
+        $user_index = null;
+        $username_is_not_taken = true;
+        $updated = false;
+
+        foreach ($user_list as $index => $stored_user) {
+            if ($stored_user['id'] === $user_id) {
+                if (is_null($stored_user['deleted_at'])) {
+                    $user_index = $index;
+                } else {
+                    break; // The user is deleted.
+                }
+            } else if (is_null($stored_user['deleted_at'])) {
+                if ($stored_user['username'] === $new_username) {
+                    $username_is_not_taken = false;
+                    break;
+                }
+            }
+        }
+
+        if ((!is_null($user_index)) && $username_is_not_taken) {
+            $user_list[$user_index]['username'] = $new_username;
+            $user_list[$user_index]['updated_at'] = date('Y-m-d H:i:s');
+            $user_store->set('user_list', $user_list);
+            $updated = true;
+        }
+
+        $user_store->unlock();
+
+        return $updated;
+    }
+
+    /**
      * Check whether the password of the user is correct
      *
      * @param string $username The username.
