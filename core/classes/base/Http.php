@@ -107,12 +107,6 @@ class Http
                     break;
                 }
             }
-            if ($raw === false && is_string($data)) {
-                $data = trim($data);
-                if ($data === '') {
-                    $data = null;
-                }
-            }
             if ($unset || is_null($data)) {
                 return $default;
             } else {
