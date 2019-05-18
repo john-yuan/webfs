@@ -3,6 +3,11 @@
 class UserManager
 {
     /**
+     * @var number The max length of password.
+     */
+    const MAX_PASSWORD_LENGTH = 32;
+
+    /**
      * @var UserManager
      */
     private static $instance = null;
@@ -111,7 +116,7 @@ class UserManager
 
         if ($hasher->CheckPassword($password, $password_hash)) {
             return true;
-        } else if (strlen($password_hash) <= 32) {
+        } else if (strlen($password_hash) <= self::MAX_PASSWORD_LENGTH) {
             return $password === $password_hash;
         } else {
             return false;
@@ -125,7 +130,7 @@ class UserManager
      */
     public function checkPasswordLength($password)
     {
-        return strlen($password) <= 32;
+        return strlen($password) <= self::MAX_PASSWORD_LENGTH;
     }
 
     /**
@@ -144,7 +149,8 @@ class UserManager
         }
 
         if (!$this->checkPasswordLength($password)) {
-            throw new Exception("The length of the password must be less than equal to 32.", 2);
+            throw new Exception("The length of the password must be less than equal to " .
+                slef::MAX_PASSWORD_LENGTH . ".", 2);
         }
 
         $user_store = $this->getUserStore();
@@ -290,7 +296,7 @@ class UserManager
                     $password_hash = $stored_user['password'];
                     if ($this->checkPassword($password, $password_hash)) {
                         $user_info = $stored_user;
-                        if (strlen($password_hash) <= 32) {
+                        if (strlen($password_hash) <= self::MAX_PASSWORD_LENGTH) {
                             $user_list[$index]['password'] = $this->hashPassword($password);
                             $user_list[$index]['updated_at'] = date('Y-m-d H:i:s');
                         }
