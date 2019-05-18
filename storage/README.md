@@ -11,7 +11,7 @@ please avoid using the files or directories listed as follow:
 * user - The directory to hold the information of the users in the system.
 * initialized.php - The file to indicate whether the application is initialized. If this file exists, means that the
 application is initialized, otherwise the application is not initialized and the installation program will be executed
-on the first time the user vist the application in the browser.
+on the first time the user visit the application in the browser.
 
 ## Deploy notes
 
