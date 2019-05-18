@@ -295,40 +295,57 @@ class FileReader
     }
 
     /**
+     * The function to normalize the given path. If the path is not absolute, it will be convert to absolute path based
+     * on the return value of `getcwd()`. We will use `/` as separator regardless of the platform. That's if the
+     * separator is `\` (on windows), we will replace it with `/`. The `.` and `..` in the path will be parsed. The `/`
+     * next to each other, such as `///` will be repalce with a single `/`.
+     *
+     * @param string $path The path to normalize.
+     * @return string Returns the absolute path always.
+     */
+    public static function normalizePath($path)
+    {
+        return self::fullpath($path);
+    }
+
+    /**
      * Get the absolute path of the path if it is not absolute path.
      *
      * @param string $path
-     * @throws Exception
-     * @return string
+     * @return string Returns the absolute path always.
      */
     public static function fullpath($path)
     {
+        // Replace something like `\` or `\\` or `//` to `/`.
         $filename = preg_replace('/(\\/|\\\\)+/', '/', $path);
 
+        // If the path is not absolute convert it to absolute.
         if (!self::isAbsolutePath($filename)) {
             $filename = getcwd() . '/' . $filename;
             $filename = preg_replace('/(\\/|\\\\)+/', '/', $filename);
         }
 
+        // Get the disk name if exists.
         if (preg_match('/^[a-zA-Z]+\\:\\//', $filename) > 0) {
             $pos = strpos($filename, ':');
             $disk = substr($filename, 0, $pos);
+            // Remove the disk name and `:/` in the path.
             $filename = substr($filename, $pos + 2);
         } else {
             $disk = null;
+            // Remove the starting `/` in the path.
             $filename = substr($filename, 1);
         }
 
         $parent = array();
         $children = explode('/', $filename);
 
+        // Parse `.` and `..` in the path.
         while (count($children)) {
             $name = array_shift($children);
             if ($name === '..') {
                 if (count($parent)) {
                     array_pop($parent);
-                } else {
-                    throw new Exception("Bad path: $path");
                 }
             } else if ($name && $name !== '.') {
                 array_push($parent, $name);
@@ -341,18 +358,6 @@ class FileReader
             $filename = '/' . $filename;
         } else {
             $filename = $disk . ':/' . $filename;
-            if (function_exists('iconv')) {
-                $safe_path = @iconv('UTF-8', 'GBK', $filename);
-                if ($safe_path === false) {
-                    $safe_path = @iconv('UTF-8', 'GB2312', $filename);
-                }
-                if ($safe_path === false) {
-                    $safe_path = @iconv('UTF-8', 'GBK//IGNORE', $filename);
-                }
-                if ($safe_path !== false) {
-                    $filename = $safe_path;
-                }
-            }
         }
 
         return $filename;
