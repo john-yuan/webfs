@@ -5,6 +5,7 @@ set_exception_handler(function ($exception) {
     $errorStack = array();
     $traceStack = array();
     $code = $exception->getCode();
+    $message = $exception->getMessage();
 
     while ($exception) {
         $error_info = array(
@@ -35,9 +36,9 @@ set_exception_handler(function ($exception) {
 
     unset($error['type']);
     unset($error['time']);
-	unset($error['traceStack']);
+    unset($error['traceStack']);
 
-    http()->error('ERR_UNCAUGHT_SYSTEM_ERROR', 'Uncaught system error. For more details, please read the error log.', $error);
+    http()->error('ERR_UNCAUGHT_SYSTEM_ERROR', $message, $error);
 });
 
 set_error_handler(function ($errno, $errstr, $errfile, $errline) {
