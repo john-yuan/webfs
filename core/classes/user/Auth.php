@@ -121,4 +121,22 @@ class Auth
 
         return $this->user;
     }
+
+    /**
+     * Get the user and check whether he or she is administrator. If the user is logged-in and is administrator an
+     * instance of User will be returned, otherwise ERR_NOT_LOGIN will be thrown on not login, ERR_NOT_ADMIN will be
+     * thrown on not administrator.
+     *
+     * @return User
+     */
+    public function admin()
+    {
+        $user = $this->user();
+
+        if (!$user->isAdmin()) {
+            http()->error('ERR_NOT_ADMIN', 'You are not the administrator!');
+        }
+
+        return $user;
+    }
 }

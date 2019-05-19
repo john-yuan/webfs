@@ -65,6 +65,16 @@ class User
     }
 
     /**
+     * Check whether the user is administrator.
+     *
+     * @return bool Returns true on the user is administrator, otherwise false is returned.
+     */
+    public function isAdmin()
+    {
+        return $this->user_info['type'] === self::ADMIN;
+    }
+
+    /**
      * For some operactions we want the user to confirm their password. This function is used to chececk whether the
      * password is correct.
      *
