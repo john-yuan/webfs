@@ -66,6 +66,14 @@ class User
     }
 
     /**
+     * Get the password hash of the user.
+     */
+    public function getPasswordHash()
+    {
+        return $this->password_hash;
+    }
+
+    /**
      * Check whether the user is root user.
      *
      * @return bool Returns true on the user is root user, otherwise false is returned.

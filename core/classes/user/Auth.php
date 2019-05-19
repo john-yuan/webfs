@@ -21,7 +21,7 @@ class Auth
     }
 
     /**
-     * @var User The logged-in user.
+     * @var User The logged in user.
      */
     private $user = null;
 
@@ -34,33 +34,34 @@ class Auth
     }
 
     /**
-     * Get the logged-in user id from the session.
+     * Get the user info of the logged in user from the session.
      *
-     * @return int
+     * @return array Returns an array containing the user_id and password_hash if the user is logged in, otherwise null
+     * is returned.
      */
-    private function getLoginUserId()
+    private function getLoginUserInfo()
     {
-        return http()->getSession('login_user_id', null);
+        return http()->getSession('login_user', null);
     }
 
     /**
-     * Save the logged-in user id to the session.
+     * Save the login user info into the session.
      *
-     * @param int $user_id
+     * @param array $login_user
      */
-    private function setLoginUserId($user_id)
+    private function setLoginUserInfo($login_user)
     {
         session_regenerate_id(true);
-        http()->setSession('login_user_id', $user_id);
+        http()->setSession('login_user', $login_user);
     }
 
     /**
-     * Remove the logged-in user id from the session.
+     * Remove the login user info from the session.
      */
-    private function removeLoginUserId()
+    private function removeLoginUserInfo()
     {
         session_regenerate_id(true);
-        http()->removeSession('login_user_id');
+        http()->removeSession('login_user');
     }
 
     /**
@@ -77,7 +78,10 @@ class Auth
         if (is_null($user)) {
             $this->logout();
         } else {
-            $this->setLoginUserId($user->getUserId());
+            $this->setLoginUserInfo(array(
+                'user_id' => $user->getUserId(),
+                'password_hash' => $user->getPasswordHash()
+            ));
             $this->user = $user;
         }
 
@@ -89,32 +93,46 @@ class Auth
      */
     public function logout()
     {
-        $this->removeLoginUserId();
+        $this->removeLoginUserInfo();
     }
 
     /**
-     * Get the logged-in user if the user is logged-in, otherwise ERR_NOT_LOGIN will be thrown.
+     * Get the logged in user if the user is logged in, otherwise ERR_NOT_LOGIN will be thrown.
      *
      * @return User
      */
     public function user()
     {
-        $login_user_id = $this->getLoginUserId();
+        $login_user = $this->getLoginUserInfo();
 
-        if (is_null($login_user_id)) {
-            http()->error('ERR_NOT_LOGIN', 'You are not logged-in!', array(
+        if (is_null($login_user)) {
+            http()->error('ERR_NOT_LOGIN', 'You are not logged in!', array(
                 'type' => 'NOT_LOGGED_IN'
             ));
         } else {
+            $login_user_id = $login_user['user_id'];
+            $login_user_password_hash = $login_user['password_hash'];
+
             if (is_null($this->user)) {
-                $this->user = userManager()->findUserById($login_user_id);
-            } else if ($this->user->getUserId() !== $login_user_id) {
                 $this->user = userManager()->findUserById($login_user_id);
             }
+
             if (is_null($this->user)) {
                 $this->logout();
-                http()->error('ERR_NOT_LOGIN', 'You are not logged-in!', array(
+                http()->error('ERR_NOT_LOGIN', 'You are not logged in!', array(
                     'type' => 'USER_NOT_FOUND'
+                ));
+            }
+
+            if ($this->user->getUserId() !== $login_user_id) {
+                $this->logout();
+                http()->error('ERR_NOT_LOGIN', 'You are not logged in!', array(
+                    'type' => 'USER_ID_CHANGED'
+                ));
+            } else if ($this->user->getPasswordHash() !== $login_user_password_hash) {
+                $this->logout();
+                http()->error('ERR_NOT_LOGIN', 'You are not logged in!', array(
+                    'type' => 'USER_PASSWORD_CHANGED'
                 ));
             }
         }
@@ -123,7 +141,7 @@ class Auth
     }
 
     /**
-     * Get the user and check whether he or she is administrator. If the user is logged-in and is administrator an
+     * Get the user and check whether he or she is administrator. If the user is logged in and is administrator an
      * instance of User will be returned, otherwise ERR_NOT_LOGIN will be thrown on not login, ERR_NOT_ADMIN will be
      * thrown on not administrator.
      *
