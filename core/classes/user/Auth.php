@@ -102,7 +102,9 @@ class Auth
         $login_user_id = $this->getLoginUserId();
 
         if (is_null($login_user_id)) {
-            http()->error('ERR_NOT_LOGIN', 'You are not logged-in!');
+            http()->error('ERR_NOT_LOGIN', 'You are not logged-in!', array(
+                'type' => 'NOT_LOGGED_IN'
+            ));
         } else {
             if (is_null($this->user)) {
                 $this->user = userManager()->findUserById($login_user_id);
@@ -111,7 +113,9 @@ class Auth
             }
             if (is_null($this->user)) {
                 $this->logout();
-                http()->error('ERR_NOT_LOGIN', 'You are not logged-in!');
+                http()->error('ERR_NOT_LOGIN', 'You are not logged-in!', array(
+                    'type' => 'USER_NOT_FOUND'
+                ));
             }
         }
 
