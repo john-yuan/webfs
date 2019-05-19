@@ -43,11 +43,21 @@ function config($key = null, $default = null)
 }
 
 /**
- * Get the instance of the UserManager
+ * Get the instance of the UserManager.
  *
  * @return UserManager
  */
 function userManager()
 {
     return UserManager::getInstance();
+}
+
+/**
+ * Get the instance of the Auth.
+ *
+ * @return Auth
+ */
+function auth()
+{
+    return Auth::getInstance();
 }
