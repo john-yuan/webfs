@@ -134,7 +134,7 @@ class Auth
         $user = $this->user();
 
         if (!$user->isAdmin()) {
-            http()->error('ERR_NOT_ADMIN', 'You are not the administrator!');
+            http()->error('ERR_NOT_ADMIN', 'Permission denied. You are not the administrator!');
         }
 
         return $user;
