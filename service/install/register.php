@@ -52,7 +52,7 @@ if (file_exists($installed_file_path)) {
     $user = null;
 
     try {
-        $user = userManager()->createUser($username, $password, User::ADMIN);
+        $user = userManager()->createUser($username, $password, User::ADMIN, true);
     } catch (Exception $exception) {
         http()->error('ERR_CREATE_USER', $exception->getMessage());
     }

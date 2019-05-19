@@ -35,7 +35,7 @@ if (strlen($password) > UserManager::MAX_PASSWORD_LENGTH) {
 }
 
 try {
-    $user = userManager()->createUser($username, $password, User::USER);
+    $user = userManager()->createUser($username, $password, User::USER, false);
 } catch (Exception $exception) {
     http()->error('ERR_CREATE_USER', $exception->getMessage(), array(
         'exception_code' => $exception->getCode()

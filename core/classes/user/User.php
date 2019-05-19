@@ -35,6 +35,7 @@ class User
         // Save the user info without password.
         $this->user_info = array(
             'id' => $user_info['id'],
+            'root' => $user_info['root'],
             'type' => $user_info['type'],
             'group' => $user_info['group'],
             'username' => $user_info['username'],
@@ -62,6 +63,16 @@ class User
     public function getUserId()
     {
         return $this->user_info['id'];
+    }
+
+    /**
+     * Check whether the user is root user.
+     *
+     * @return bool Returns true on the user is root user, otherwise false is returned.
+     */
+    public function isRootUser()
+    {
+        return $this->user_info['root'];
     }
 
     /**

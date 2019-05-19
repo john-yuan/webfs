@@ -139,10 +139,11 @@ class UserManager
      * @param string $username The username.
      * @param string $password The unhashed user password.
      * @param string $type The user type, User::USER or User::ADMIN.
+     * @param bool $root Whether the user is root (The first administrator, can not be deleted).
      * @throws Exception Throws exception on arguments error.
      * @return mixed Returns a instance of User on success. Otherwise null is returned.
      */
-    public function createUser($username, $password, $type)
+    public function createUser($username, $password, $type, $root)
     {
         if ($type !== User::USER && $type !== User::ADMIN) {
             throw new Exception("User type must be USER or ADMIN, but $type is given.", 1);
@@ -154,11 +155,7 @@ class UserManager
         }
 
         $user_store = $this->getUserStore();
-
-        $user_store->lock();
-
-        $user_list = $user_store->get('user_list', array());
-
+        $user_list = $user_store->lock()->get('user_list', array());
         $user_is_not_existed = true;
 
         foreach ($user_list as $stored_user) {
@@ -176,6 +173,7 @@ class UserManager
             $current_date = date('Y-m-d H:i:s');
 
             $user_info['id'] = $user_id;
+            $user_info['root'] = $root;
             $user_info['type'] = $type;
             $user_info['group'] = array();
             $user_info['username'] = $username;
