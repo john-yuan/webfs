@@ -146,12 +146,12 @@ class UserManager
     public function createUser($username, $password, $type, $root)
     {
         if ($type !== User::USER && $type !== User::ADMIN) {
-            throw new Exception("User type must be USER or ADMIN, but $type is given.", 1);
+            throw new Exception("User type must be USER or ADMIN, but $type is given!", 1);
         }
 
         if (!$this->checkPasswordLength($password)) {
             throw new Exception('The length of the password must be less than equal to ' .
-                self::MAX_PASSWORD_LENGTH . '.', 2);
+                self::MAX_PASSWORD_LENGTH . '!', 2);
         }
 
         $user_store = $this->getUserStore();

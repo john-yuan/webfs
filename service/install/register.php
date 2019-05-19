@@ -44,21 +44,22 @@ if (file_exists($installed_file_path)) {
         http()->error('ERR_PASSWORD_BAD_TYPE', 'The password must be a string!');
     }
 
-    if (strlen($password) > UserManager::MAX_PASSWORD_LENGTH) {
-        http()->error('ERR_PASSWORD_TOO_LONG', 'The length of the password must be less than equal to ' .
-            UserManager::MAX_PASSWORD_LENGTH . '!');
-    }
-
-    $user = null;
-
     try {
         $user = userManager()->createUser($username, $password, User::ADMIN, true);
     } catch (Exception $exception) {
-        http()->error('ERR_CREATE_USER', $exception->getMessage());
+        if ($exception->getCode() === 1) {
+            http()->error('ERR_BAD_USER_TYPE', $exception->getMessage());
+        } else if ($exception->getCode() === 2) {
+            http()->error('ERR_PASSWORD_TOO_LONG', $exception->getMessage());
+        } else {
+            http()->error('ERR_CREATE_USER', $exception->getMessage(), array(
+                'exception_code' => $exception->getCode()
+            ));
+        }
     }
 
     if (is_null($user)) {
-        http()->error('ERR_USER_EXISTS', 'The user already exists!');
+        http()->error('ERR_USERNAME_TAKEN', 'The username is already taken!');
     } else {
         file_put_contents($installed_file_path, "<?php\n\n// The system is installed.\n");
         http()->send($user->getUserInfo());
