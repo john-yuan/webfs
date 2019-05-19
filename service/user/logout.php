@@ -6,4 +6,4 @@ require_once __DIR__ . '/index.php';
 
 http()->allowedMethod('post');
 auth()->logout();
-http()->send();
+http()->send(true);
