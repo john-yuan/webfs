@@ -198,27 +198,24 @@ class UserManager
     }
 
     /**
-     * Remove a user by the username.
+     * Delete user by the user id.
      *
-     * @param string $username The name of the user to be removed.
-     * @return bool Returns true on success. Otherwise false is returnd.
+     * @param int $user_id The user id of the user to be deleted.
+     * @return bool Returns true on success, otherwise false is returnd.
      */
-    public function deleteUser($username, $password)
+    public function deleteUser($user_id)
     {
         $user_store = $this->getUserStore();
-
-        $user_store->lock();
-        $user_list = $user_store->get('user_list', array());
-
+        $user_list = $user_store->lock()->get('user_list', array());
         $user_deleted = false;
 
         foreach ($user_list as $index => $stored_user) {
-            if ($stored_user['username'] === $username) {
+            if ($stored_user['id'] === $user_id) {
                 if (is_null($stored_user['deleted_at'])) {
                     $user_list[$index]['deleted_at'] = date('Y-m-d H:i:s');
                     $user_deleted = true;
-                    break;
                 }
+                break;
             }
         }
 
