@@ -316,7 +316,7 @@ class UserManager
      *
      * @param string $username The username.
      * @param string $password The unhashed password.
-     * @return bool
+     * @return User Returns the user on success, otherwise null is returned.
      */
     public function authenticate($username, $password)
     {
