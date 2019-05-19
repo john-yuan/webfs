@@ -206,37 +206,29 @@ class Http
     /**
      * Send the error to the browser and exit the program.
      *
-     * @param int|array $errno
+     * @param string $errno
      * @param string $message
      * @param string $error
-     *
-     * void error ( int $errno, $message = null, $error = null )
-     * void error ( array $error )
-     * void eroor ( array $error, array $error_detail )
      */
     public function error($errno, $message = null, $error = null)
     {
-        if (is_array($errno)) {
-            $error = isset($errno['error']) ? $errno['error'] : null;
+        if (is_null($errno)) {
+            throw new Exception('The errno is required!');
 
-            if (is_null($error)) {
-                $error = $message;
-            }
-
-            $message = isset($errno['message']) ? $errno['message'] : null;
-            $errno = isset($errno['code']) ? $errno['code'] : null;
-
-            if (is_null($errno)) {
-                throw new Exception('The errno is required.');
-            }
         }
 
-        if ($errno === 0) {
-            throw new Exception('The errno can not be zero.');
+        if (!is_string($errno)) {
+            throw new Exception('The errno must a string!');
+        }
+
+        $errno = trim($errno);
+
+        if ($errno === '') {
+            throw new Exception('The errno can not be a empty string!');
         }
 
         if (is_null($message)) {
-            $message = 'Uncaught system error.';
+            $message = 'Uncaught system error!';
         }
 
         $res = array();
