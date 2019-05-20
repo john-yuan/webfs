@@ -23,7 +23,7 @@ class Http
     private static $instance = null;
 
     /**
-     * Get the Http instance
+     * Get the Http instance.
      *
      * @return Http
      */
@@ -36,11 +36,11 @@ class Http
     }
 
     /**
-     * The private constructor
+     * The private constructor.
      */
     private function __construct()
     {
-        $this->reqeust_method = strtoupper(trim($_SERVER["REQUEST_METHOD"]));
+        $this->reqeust_method = strtoupper(trim($_SERVER['REQUEST_METHOD']));
     }
 
     /**
@@ -152,8 +152,8 @@ class Http
      */
     public function e405()
     {
-        header("HTTP/1.1 405 Method Not Allowed");
-        header("status: 405 Method Not Allowed");
+        header('HTTP/1.1 405 Method Not Allowed');
+        header('status: 405 Method Not Allowed');
         echo '405 Method Not Allowed';
         exit;
     }
@@ -163,8 +163,8 @@ class Http
      */
     public function e404()
     {
-        header("HTTP/1.1 404 Not Found");
-        header("status: 404 Not Found");
+        header('HTTP/1.1 404 Not Found');
+        header('status: 404 Not Found');
         echo '404 Not Found';
         exit;
     }
@@ -185,7 +185,7 @@ class Http
         if ($text === false) {
             throw new Exception('Failed to encode the data to JSON.');
         } else {
-            header("Content-Type: application/json; charset=utf-8");
+            header('Content-Type: application/json; charset=utf-8');
             echo $text;
             exit;
         }
@@ -198,7 +198,7 @@ class Http
      */
     public function text($text)
     {
-        header("Content-Type: text/plain; charset=utf-8");
+        header('Content-Type: text/plain; charset=utf-8');
         echo $text;
         exit;
     }
@@ -218,7 +218,7 @@ class Http
         }
 
         if (!is_string($errno)) {
-            throw new Exception('The errno must a string!');
+            throw new Exception('The errno must be a string!');
         }
 
         $errno = trim($errno);
