@@ -231,7 +231,7 @@ class UserManager
      *
      * @param int $user_id The user id.
      * @param string $new_username The new username.
-     * @return bool
+     * @return User Returns the updated user on success, otherwise null is returned.
      */
     public function updateUserName($user_id, $new_username)
     {
@@ -240,7 +240,7 @@ class UserManager
 
         $user_index = null;
         $username_is_not_taken = true;
-        $updated = false;
+        $user = null;
 
         foreach ($user_list as $index => $stored_user) {
             if ($stored_user['id'] === $user_id) {
@@ -249,7 +249,8 @@ class UserManager
                 } else {
                     break; // The user is deleted.
                 }
-            } else if (is_null($stored_user['deleted_at'])) {
+            }
+            if (is_null($stored_user['deleted_at'])) {
                 if ($stored_user['username'] === $new_username) {
                     $username_is_not_taken = false;
                     break;
@@ -261,12 +262,12 @@ class UserManager
             $user_list[$user_index]['username'] = $new_username;
             $user_list[$user_index]['updated_at'] = date('Y-m-d H:i:s');
             $user_store->set('user_list', $user_list);
-            $updated = true;
+            $user = new User($user_list[$user_index]);
         }
 
         $user_store->unlock();
 
-        return $updated;
+        return $user;
     }
 
     /**

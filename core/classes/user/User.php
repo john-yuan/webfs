@@ -66,6 +66,16 @@ class User
     }
 
     /**
+     * Get the name of the user.
+     *
+     * @return string
+     */
+    public function getUserName()
+    {
+        return $this->user_info['username'];
+    }
+
+    /**
      * Get the password hash of the user.
      */
     public function getPasswordHash()
