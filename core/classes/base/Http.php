@@ -18,6 +18,16 @@ class Http
     private $request_input = null;
 
     /**
+     * @var bool
+     */
+    private $use_jsonp = false;
+
+    /**
+     * @var string
+     */
+    private $jsonp_key = null;
+
+    /**
      * @var Http
      */
     private static $instance = null;
@@ -170,12 +180,34 @@ class Http
     }
 
     /**
+     * If this method is called and the request method is `GET` and the `callback` is passed with the request, the
+     * response will be send as jsonp. If this method is called but the request method is not `GET` or the `callback`
+     * is not passed with the request, the response will be send as raw json.
+     *
+     * @param string $jsonp_key The key to get the callback name. The default value is `callback`.
+     */
+    public function jsonp($jsonp_key = 'callback')
+    {
+        $this->use_jsonp = true;
+        $this->jsonp_key = $jsonp_key;
+    }
+
+    /**
      * Send the data as JSON to the browser and exit the program.
      *
      * @param mixed $data
      */
     public function json($data)
     {
+        $use_jsonp = false;
+
+        if ($this->use_jsonp && $this->reqeust_method === 'GET') {
+            $callback = $this->input($this->jsonp_key);
+            if (is_string($callback) && $callback !== '') {
+                $use_jsonp = true;
+            }
+        }
+
         if (defined('JSON_UNESCAPED_UNICODE')) {
             $text = json_encode($data, JSON_UNESCAPED_UNICODE);
         } else {
@@ -185,8 +217,12 @@ class Http
         if ($text === false) {
             throw new Exception('Failed to encode the data to JSON.');
         } else {
-            header('Content-Type: application/json; charset=utf-8');
-            echo $text;
+            if ($use_jsonp) {
+                echo $callback . '(' . $text . ')';
+            } else {
+                header('Content-Type: application/json; charset=utf-8');
+                echo $text;
+            }
             exit;
         }
     }
