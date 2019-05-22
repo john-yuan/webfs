@@ -352,32 +352,32 @@ class UserManager
     }
 
     /**
-     * Get the user list. If the filter is not `active` and `deleted`, it will be treated as `all`.
+     * Get the user list. If the status is not `active` and `deleted`, it will be treated as `any`.
      *
-     * @param string $filter The filter to apply. Can be `active`, `deleted` and `all`.
-     * @return array Returns the filtered user list.
+     * @param string $status The status to apply. Can be `active`, `deleted` and `any`.
+     * @return array Returns the statused user list.
      */
-    public function getUserList($filter)
+    public function getUserList($status)
     {
         $user_store = $this->getUserStore();
         $user_list = $user_store->get('user_list', array());
         $filtered_user_list = array();
 
-        if ($filter === 'active') {
+        if ($status === 'active') {
             foreach ($user_list as $stored_user) {
                 if (is_null($stored_user['deleted_at'])) {
                     $user = new User($stored_user);
                     array_push($filtered_user_list, $user->getUserInfo());
                 }
             }
-        } else if ($filter === 'deleted') {
+        } else if ($status === 'deleted') {
             foreach ($user_list as $stored_user) {
                 if (!is_null($stored_user['deleted_at'])) {
                     $user = new User($stored_user);
                     array_push($filtered_user_list, $user->getUserInfo());
                 }
             }
-        } else { // filter === 'all'
+        } else { // status === 'any'
             foreach ($user_list as $stored_user) {
                 $user = new User($stored_user);
                 array_push($filtered_user_list, $user->getUserInfo());
