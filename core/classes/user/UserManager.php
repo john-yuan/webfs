@@ -366,17 +366,22 @@ class UserManager
         if ($filter === 'active') {
             foreach ($user_list as $stored_user) {
                 if (is_null($stored_user['deleted_at'])) {
-                    array_push($filtered_user_list, $stored_user);
+                    $user = new User($stored_user);
+                    array_push($filtered_user_list, $user->getUserInfo());
                 }
             }
         } else if ($filter === 'deleted') {
             foreach ($user_list as $stored_user) {
                 if (!is_null($stored_user['deleted_at'])) {
-                    array_push($filtered_user_list, $stored_user);
+                    $user = new User($stored_user);
+                    array_push($filtered_user_list, $user->getUserInfo());
                 }
             }
         } else { // filter === 'all'
-            $filtered_user_list = $user_list;
+            foreach ($user_list as $stored_user) {
+                $user = new User($stored_user);
+                array_push($filtered_user_list, $user->getUserInfo());
+            }
         }
 
         return $filtered_user_list;
