@@ -69,9 +69,13 @@ if ($login_user->getUserId() === $user->getUserId()) {
     }
 
     if ($permission_not_denied) {
-        http()->send(array(
-            'updated' => userManager()->updateUserPassword($user_id, $new_password)
-        ));
+        if ($user->confirmPassword($new_password)) {
+            http()->error('ERR_SAME_PASSWORD', 'The new password is same as the old one!');
+        } else {
+            http()->send(array(
+                'updated' => userManager()->updateUserPassword($user_id, $new_password)
+            ));
+        }
     } else {
         http()->error('ERR_PERMISSION_DENIED', 'Permission denied. Can not update the password!');
     }
