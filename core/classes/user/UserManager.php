@@ -196,10 +196,10 @@ class UserManager
     }
 
     /**
-     * Delete user by the user id.
+     * Delete the user by the user id. The user will be soft deleted and can be restored latter.
      *
      * @param int $user_id The user id of the user to be deleted.
-     * @return bool Returns true on success, otherwise false is returnd.
+     * @return bool Returns true on success, otherwise false is returned.
      */
     public function deleteUser($user_id)
     {
@@ -224,6 +224,46 @@ class UserManager
         $user_store->unlock();
 
         return $user_deleted;
+    }
+
+    /**
+     * Clear the user by the user id. The user will be hard deleted and remove from the storage. This operation can not
+     * be undone. The user must be deleted (by calling the method `deleteUser($user_id)`) before being cleared,
+     * otherwise an error code of which the values is `2` will be returned.
+     *
+     * @param int $user_id The user id of the user to be deleted.
+     * @return int Returns `0` on success, returns `1` on user not found, returns `2` on user not deleted before.
+     */
+    public function clearUser($user_id)
+    {
+        $user_store = $this->getUserStore();
+        $user_list = $user_store->lock()->get('user_list', array());
+        $new_user_list = array();
+
+        // If the user is not found, the status code remains as `1`.
+        $status_code = 1;
+
+        foreach ($user_list as $stored_user) {
+            if ($stored_user['id'] === $user_id) {
+                if (is_null($stored_user['deleted_at'])) {
+                    // The user must be deleted before being cleared.
+                    $status_code = 2;
+                    break;
+                } else {
+                    $status_code = 0;
+                }
+            } else {
+                array_push($new_user_list, $stored_user);
+            }
+        }
+
+        if ($status_code === 0) {
+            $user_store->set('user_list', $new_user_list);
+        }
+
+        $user_store->unlock();
+
+        return $status_code;
     }
 
     /**
