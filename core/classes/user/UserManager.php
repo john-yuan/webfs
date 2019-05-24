@@ -227,12 +227,13 @@ class UserManager
     }
 
     /**
-     * Clear the user by the user id. The user will be hard deleted and remove from the storage. This operation can not
-     * be undone. The user must be deleted (by calling the method `deleteUser($user_id)`) before being cleared,
-     * otherwise an error code of which the values is `2` will be returned.
+     * Clear the user by the user id. The user will be hard deleted and removed from the storage. This operation can not
+     * be undone. If the user is not found an exception of which the code is `1` will be thrown. The user must be
+     * deleted (by calling the method `deleteUser($user_id)`) before being cleared, otherwise an exception of which
+     * the code is `2` will be thrown.
      *
      * @param int $user_id The user id of the user to be cleared.
-     * @return int Returns `0` on success, returns `1` on user not found, returns `2` on user not deleted before.
+     * @throws Exception Throws an exception on user not found or user not deleted before.
      */
     public function clearUser($user_id)
     {
@@ -240,13 +241,11 @@ class UserManager
         $user_list = $user_store->lock()->get('user_list', array());
         $new_user_list = array();
 
-        // If the user is not found, the status code remains as `1`.
         $status_code = 1;
 
         foreach ($user_list as $stored_user) {
             if ($stored_user['id'] === $user_id) {
                 if (is_null($stored_user['deleted_at'])) {
-                    // The user must be deleted before being cleared.
                     $status_code = 2;
                     break;
                 } else {
@@ -263,7 +262,11 @@ class UserManager
 
         $user_store->unlock();
 
-        return $status_code;
+        if ($status_code === 1) {
+            throw new Exception('User not found. Cannot clear the user.', 1);
+        } else if ($status_code === 2) {
+            throw new Exception('User not deleted. Cannot clear the user.', 2);
+        }
     }
 
     /**
