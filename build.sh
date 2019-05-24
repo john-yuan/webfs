@@ -22,6 +22,3 @@ cp -r "${__DIR__}/service" $DIST_DIR
 
 # Remove the test services in dist directory
 rm -rf "${DIST_DIR}/service/test"
-
-# Copy the production config to config.php
-cat "${DIST_DIR}/core/config_production.php" > "${DIST_DIR}/core/config.php"
