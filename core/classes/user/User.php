@@ -104,6 +104,16 @@ class User
     }
 
     /**
+     * Check whether the user is deleted.
+     *
+     * @return bool Returns true on the user is deleted, otherwise false is returned.
+     */
+    public function isDeleted()
+    {
+        return !is_null($this->user_info['deleted_at']);
+    }
+
+    /**
      * For some operactions we want the user to confirm their password. This function is used to chececk whether the
      * password is correct.
      *

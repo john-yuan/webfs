@@ -44,50 +44,28 @@ class UserManager
     }
 
     /**
-     * Find the user by the specific key (username or id).
+     * Find the user by user id.
      *
-     * @param string $key The key to search (username or id).
-     * @param string|number $value The value to search.
+     * @param string $user_id The user id of the user.
+     * @param bool $with_deleted Whether to find in the deleted user list. The default value is false.
      * @return User|null Returns an instance of User on user found, otherwise null is returned.
      */
-    private function findUserBySpecificKey($key, $value)
+    public function findUserById($user_id, $with_deleted = false)
     {
         $user_store = $this->getUserStore();
         $user_list = $user_store->get('user_list', array());
         $user_info = null;
 
         foreach ($user_list as $stored_user) {
-            if ($stored_user[$key] === $value) {
-                if (is_null($stored_user['deleted_at'])) {
+            if ($stored_user['id'] === $user_id) {
+                if ($with_deleted || is_null($stored_user['deleted_at'])) {
                     $user_info = $stored_user;
-                    break;
                 }
+                break;
             }
         }
 
         return is_null($user_info) ? null : new User($user_info);
-    }
-
-    /**
-     * Find the user by username.
-     *
-     * @param string $username The username of the user.
-     * @return User|null Returns an instance of User on user found, otherwise null is returned.
-     */
-    public function findUserByName($username)
-    {
-        return $this->findUserBySpecificKey('username', $username);
-    }
-
-    /**
-     * Find the user by user id.
-     *
-     * @param string $user_id The user id of the user.
-     * @return User|null Returns an instance of User on user found, otherwise null is returned.
-     */
-    public function findUserById($user_id)
-    {
-        return $this->findUserBySpecificKey('id', $user_id);
     }
 
     /**
@@ -263,9 +241,9 @@ class UserManager
         $user_store->unlock();
 
         if ($status_code === 1) {
-            throw new Exception('User not found. Cannot clear the user.', 1);
+            throw new Exception('Failed to clear the user. The user is not found!', 1);
         } else if ($status_code === 2) {
-            throw new Exception('User not deleted. Cannot clear the user.', 2);
+            throw new Exception('Failed to clear the user. The user is not deleted!', 2);
         }
     }
 
