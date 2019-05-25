@@ -40,7 +40,6 @@ if ($user->isAdmin() && (!$admin->isRootUser())) {
 
 try {
     userManager()->clearUser($user_id);
-    http()->send(true);
 } catch (Exception $exception) {
     if ($exception->getCode() === 1) {
         http()->error('ERR_USER_NOT_FOUND', $exception->getMessage());
@@ -50,3 +49,5 @@ try {
         http()->error('ERR_CLEAR_USER', $exception->getMessage());
     }
 }
+
+http()->send(true);
