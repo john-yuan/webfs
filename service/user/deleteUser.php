@@ -1,6 +1,6 @@
 <?php
 
-// This API is designed to remove the user from the system. Only the root user can delete both teh administrator and the
+// This API is designed to remove the user from the system. Only the root user can delete both the administrator and the
 // normal user. The administrator can delete the normal user. The root user can not be deleted.
 // @input int $user_id The id of the user to be removed.
 
