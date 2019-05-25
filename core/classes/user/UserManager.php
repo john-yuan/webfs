@@ -248,6 +248,47 @@ class UserManager
     }
 
     /**
+     * Restore the deleted user by user id.
+     *
+     * @param int $user_id The user id of the deleted user.
+     * @param string $new_username The username to use when restore the user. Can be the old username.
+     * @throws Exception Throws exception on error. If the user not deleted the error code is `1`. If the username taken
+     * the error code is `2`. If the user not found the error code is `3`.
+     */
+    public function restoreUser($user_id, $new_username)
+    {
+        $user_store = $this->getUserStore();
+        $user_list = $user_store->lock()->get('user_list', array());
+        $user_index = null;
+
+        foreach ($user_list as $index => $stored_user) {
+            if ($stored_user['id'] === $user_id) {
+                if (is_null($stored_user['deleted_at'])) {
+                    $user_store->unlock();
+                    throw new Exception('Failed to restore the user. The user is not deleted!', 1);
+                } else {
+                    $user_index = $index;
+                }
+            } else if (is_null($stored_user['deleted_at'])) {
+                if ($stored_user['username'] === $new_username) {
+                    $user_store->unlock();
+                    throw new Exception('Failed to restore the user. The username is taken!', 2);
+                }
+            }
+        }
+
+        if (is_null($user_index)) {
+            $user_store->unlock();
+            throw new Exception('Failed to restore the user. The user is not found!', 3);
+        } else {
+            $user_list[$user_index]['username'] = $new_username;
+            $user_list[$user_index]['updated_at'] = date('Y-m-d H:i:s');
+            $user_list[$user_index]['deleted_at'] = null;
+            $user_store->set('user_list', $user_list)->unlock();
+        }
+    }
+
+    /**
      * Update the user name by user id.
      *
      * @param int $user_id The user id.
