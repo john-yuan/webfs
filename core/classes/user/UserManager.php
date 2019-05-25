@@ -360,10 +360,7 @@ class UserManager
     public function authenticate($username, $password)
     {
         $user_store = $this->getUserStore();
-
-        $user_store->lock();
-        $user_list = $user_store->get('user_list', array());
-
+        $user_list = $user_store->lock()->get('user_list', array());
         $user_info = null;
 
         foreach ($user_list as $index => $stored_user) {
@@ -371,19 +368,18 @@ class UserManager
                 if (is_null($stored_user['deleted_at'])) {
                     $password_hash = $stored_user['password'];
                     if ($this->checkPassword($password, $password_hash)) {
-                        $user_info = $stored_user;
                         if (strlen($password_hash) <= self::MAX_PASSWORD_LENGTH) {
                             $user_list[$index]['password'] = $this->hashPassword($password);
                             $user_list[$index]['updated_at'] = date('Y-m-d H:i:s');
                         }
+                        $user_info = $user_list[$index];
                     }
                     break;
                 }
             }
         }
 
-        $user_store->set('user_list', $user_list);
-        $user_store->unlock();
+        $user_store->set('user_list', $user_list)->unlock();
 
         if ($user_info) {
             if ($this->checkPassword($password, $user_info['password'])) {
