@@ -1,6 +1,8 @@
 <?php
 
-// This API is designed to add user into the system. The administator permission is required.
+// This API is designed to add user into the system. The root user can create administrator and normal user. The
+// administrator can create normal user. The normal user can not create user. Root user can not be created with this
+// API.
 // @input string $username The user name.
 // @input string $password The password.
 // @input string $type The user type. ADMIN or USER.
@@ -9,8 +11,8 @@
 require_once __DIR__ . '/index.php';
 
 http()->allowedMethod('post');
-auth()->admin();
 
+$admin = auth()->admin();
 $username = http()->input('username');
 $password = http()->input('password');
 $type = http()->input('type');
@@ -37,6 +39,14 @@ if (!is_string($password)) {
 
 if (!is_string($type)) {
     http()->error('ERR_USER_TYPE_BAD_TYPE', 'The user type must be a string!');
+}
+
+if ($type !== User::USER && $type !== User::ADMIN) {
+    http()->error('ERR_BAD_USER_TYPE', "User type must be USER or ADMIN, but $type is given!");
+}
+
+if ($type === User::ADMIN && (!$admin->isRootUser())) {
+    http()->error('ERR_CAN_NOT_CREATE_ADMINISTRATOR', 'Permission denied. You can not create the administrator!');
 }
 
 try {
