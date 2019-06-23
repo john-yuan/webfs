@@ -15,6 +15,7 @@ http()->allowedMethod('post');
 $admin = auth()->admin();
 $username = http()->input('username');
 $password = http()->input('password');
+$nickname = http()->input('nickname');
 $type = http()->input('type');
 
 if (is_null($username)) {
@@ -27,6 +28,10 @@ if (is_null($password)) {
 
 if (is_null($type)) {
     http()->error('ERR_USER_TYPE_REQUIRED', 'The user type is required!');
+}
+
+if (!is_null($nickname) && !is_string($nickname)) {
+    http()->error('ERR_NICKNAME_BAD_TYPE', 'The nickname must be a string!');
 }
 
 if (!is_string($username)) {
@@ -50,7 +55,7 @@ if ($type === User::ADMIN && (!$admin->isRootUser())) {
 }
 
 try {
-    $user = userManager()->createUser($username, $password, $type, false);
+    $user = userManager()->createUser($username, $password, $type, false, $nickname);
 } catch (Exception $exception) {
     if ($exception->getCode() === 1) {
         http()->error('ERR_BAD_USER_TYPE', $exception->getMessage());

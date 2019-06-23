@@ -118,10 +118,12 @@ class UserManager
      * @param string $password The unhashed user password.
      * @param string $type The user type, User::USER or User::ADMIN.
      * @param bool $root Whether the user is root (The first administrator, can not be deleted).
+     * @param string $nickname The optional user nickname. If it is set to `NULL`, username is used. The default value
+     * is `NULL`.
      * @throws Exception Throws exception on arguments error.
      * @return mixed Returns a instance of User on success. Otherwise null is returned.
      */
-    public function createUser($username, $password, $type, $root)
+    public function createUser($username, $password, $type, $root, $nickname = NULL)
     {
         if ($type !== User::USER && $type !== User::ADMIN) {
             throw new Exception("User type must be USER or ADMIN, but $type is given!", 1);
@@ -130,6 +132,14 @@ class UserManager
         if (!$this->checkPasswordLength($password)) {
             throw new Exception('The length of the password must be less than equal to ' .
                 self::MAX_PASSWORD_LENGTH . '!', 2);
+        }
+
+        if (is_null($nickname)) {
+            $nickname = $username;
+        }
+
+        if (!is_string($nickname)) {
+            throw new Exception('The nickname must be a string!', 3);
         }
 
         $user_store = $this->getUserStore();
@@ -155,6 +165,7 @@ class UserManager
             $user_info['type'] = $type;
             $user_info['group'] = array();
             $user_info['username'] = $username;
+            $user_info['nickname'] = $nickname;
             $user_info['password'] = $this->hashPassword($password);
             $user_info['created_at'] = $current_date;
             $user_info['updated_at'] = $current_date;

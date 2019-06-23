@@ -39,6 +39,7 @@ class User
             'type' => $user_info['type'],
             'group' => $user_info['group'],
             'username' => $user_info['username'],
+            'nickname' => $user_info['nickname'],
             'created_at' => $user_info['created_at'],
             'updated_at' => $user_info['updated_at'],
             'deleted_at' => $user_info['deleted_at']

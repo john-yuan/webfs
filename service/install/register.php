@@ -5,6 +5,7 @@
 // @input string $installation_auth_code The installation auth code.
 // @input string $username The user name.
 // @input string $password The password.
+// @input string $nickname The optional nickname.
 // @output The user info is returned on success.
 
 require_once __DIR__ . '/../index.php';
@@ -19,6 +20,7 @@ if (file_exists($installed_file_path)) {
     $installation_auth_code = http()->input('installation_auth_code');
     $username = http()->input('username');
     $password = http()->input('password');
+    $nickname = http()->input('nickname');
 
     if (is_null($installation_auth_code)) {
         http()->error('ERR_INSTALLATION_AUTH_CODE_REQUIRED', 'The installation auth code is required!');
@@ -44,8 +46,12 @@ if (file_exists($installed_file_path)) {
         http()->error('ERR_PASSWORD_BAD_TYPE', 'The password must be a string!');
     }
 
+    if (!is_null($nickname) && !is_string($nickname)) {
+        http()->error('ERR_NICKNAME_BAD_TYPE', 'The nickname must be a string!');
+    }
+
     try {
-        $user = userManager()->createUser($username, $password, User::ADMIN, true);
+        $user = userManager()->createUser($username, $password, User::ADMIN, true, $nickname);
     } catch (Exception $exception) {
         if ($exception->getCode() === 1) {
             http()->error('ERR_BAD_USER_TYPE', $exception->getMessage());
