@@ -92,6 +92,14 @@ class Http
             if ($is_json) {
                 $text = file_get_contents('php://input');
                 $data = json_decode($text, true);
+
+                if (is_null($data)) {
+                    $str = strtolower(trim($text));
+                    if ($str !== '' && $str !== 'null') {
+                        $this->e400();
+                    }
+                }
+
                 if (!is_array($data)) {
                     $data = array();
                 }
@@ -176,6 +184,17 @@ class Http
         header('HTTP/1.1 404 Not Found');
         header('status: 404 Not Found');
         echo '404 Not Found';
+        exit;
+    }
+
+    /**
+     * Send a 400 error to the browser and exit the program.
+     */
+    public function e400()
+    {
+        header('HTTP/1.1 400 Bad Request');
+        header('status: 400 Bad Request');
+        echo '400 Bad Request';
         exit;
     }
 
