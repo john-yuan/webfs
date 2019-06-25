@@ -1,26 +1,39 @@
 <?php
 
-/**
- * @todo catch errors and add comments.
- */
-
 class RSAPassword
 {
+    /**
+     * The max age of the RSA key (in seconds).
+     */
     const MAX_AGE = 86400;
 
+    /**
+     * The private constructor.
+     */
     private function __construct()
     {
         // nothing
     }
 
-    public static function decrypt($base64_encoded_encrypted_data)
+    /**
+     * Decrypt the RSA encrypted data.
+     *
+     * @param string $encrypted The data to decrypt, which is urlencoded and RSA encrypted and base64 encoded.
+     * @return string Returns the decrypted text on success.
+     * @throws Exception Throws exceptions on error.
+     */
+    public static function decrypt($encrypted)
     {
         $instance = new RSAPassword();
         $details = $instance->readFromStore();
         $private_key = $details['private_key'];
         $keybits = $details['keybits'];
         $chunk_size = $keybits + 7 >> 3;
-        $encrypted_data = base64_decode($base64_encoded_encrypted_data);
+        $encrypted_data = base64_decode($encrypted);
+
+        if ($encrypted_data === false) {
+            throw new Exception('Failed to base64 decode the encrypted data!', 1);
+        }
 
         $urlencoded_decrypted = '';
 
@@ -33,7 +46,11 @@ class RSAPassword
                 $encrypted_data = NULL;
             }
 
-            openssl_private_decrypt($encrypted_chunk, $decrypted_chunk, $private_key);
+            $result = openssl_private_decrypt($encrypted_chunk, $decrypted_chunk, $private_key);
+
+            if ($result === false) {
+                throw new Exception('Failed to decrypt the data!', 2);
+            }
 
             $urlencoded_decrypted = $urlencoded_decrypted . $decrypted_chunk;
         } while (!is_null($encrypted_data));
@@ -41,6 +58,12 @@ class RSAPassword
         return urldecode($urlencoded_decrypted);
     }
 
+    /**
+     * Get the public key details.
+     *
+     * @throws Throws exceptions on generating RSA key failed.
+     * @return array Returns the key details.
+     */
     public static function getPublicDetails()
     {
         $instance = new RSAPassword();
@@ -53,6 +76,12 @@ class RSAPassword
         );
     }
 
+    /**
+     * Read the RSA key from store. If it does not exist or is expired, a new RSA key will generated.
+     *
+     * @throws Throws exceptions on generating RSA key failed.
+     * @return array Returns the RSA key info.
+     */
     private function readFromStore()
     {
         $store = store('security/rsa-key-details');
@@ -75,6 +104,12 @@ class RSAPassword
         return $details;
     }
 
+    /**
+     * Generate a RSA key.
+     *
+     * @throws Throws exceptions on error.
+     * @return array Returns the RSA key info.
+     */
     private function generate()
     {
         $config = array(
@@ -85,9 +120,21 @@ class RSAPassword
 
         $res = openssl_pkey_new($config);
 
-        openssl_pkey_export($res, $private_key);
+        if ($res === false) {
+            throw new Exception('Failed to generate the RSA key.', 3);
+        }
+
+        $state = openssl_pkey_export($res, $private_key);
+
+        if ($state === false) {
+            throw new Exception('Failed to export the private key!', 4);
+        }
 
         $details = openssl_pkey_get_details($res);
+
+        if ($details === false) {
+            throw new Exception('Failed to get the key details!', 5);
+        }
 
         $key_details = array(
             'created_at' => time(),
